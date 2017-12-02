@@ -126,6 +126,7 @@ def GetPriceFromTo(ricName, date_from, date_to):
 
     # if authentiacation success, continue subscribing Online Report
     if token is not None:
+        appid = 'trkddemoappwm'
         price_data = RetrievePriceFromTo(token, appid, ricName, date_from, date_to)
         for i in list(((list(price_data.values())[0]).values()))[0]:
             print ('price : ', i[u'CLOSE'], '              datetime : ', i[u'TIMESTAMP'], '\n')
