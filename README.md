@@ -1,1 +1,2 @@
-# Repository for MLH Local Hack Day
+# MLH
+Repository for MLH Local Hack Day
