@@ -803,9 +803,9 @@ def parse(message):
         return m.group(1)
 
 def parseArgGetPriceFromTo(message):
-    m = re.match('.*security":"([a-zA-Z]+)"', message, flags=re.UNICODE)
+    m = re.match('"security":"(\S+)","currency_to":"(\d+-\d+-\d+)","currency_from":\["(\d+-\d+-\d+)"\]', message, flags=re.UNICODE)
     if m is not None:
-        return m.group(1)
+        return (m.group(1), m.group(2), m.group(3))
 
 def parseArgGetExchange(message):
     m = re.match('.*currency_from":"([a-zA-Z]+)"', message, flags=re.UNICODE)
@@ -830,8 +830,8 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
         response = 'Something bad happend at the back-end\n'
         if function == 'GetPriceFromTo':
             print(message)
-            ricName = parseArgGetPriceFromTo(message);
-            print(ricName)
+            sec, frm, to = parseArgGetPriceFromTo(message);
+            print(sec, frm, to)
             response = GetPriceFromTo(ricName)
         elif function == 'GetExchange':
             name = parseArgGetExchange(message)
