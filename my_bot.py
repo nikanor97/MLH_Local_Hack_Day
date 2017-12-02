@@ -830,7 +830,7 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
         response = 'Something bad happend at the back-end\n'
         if function == 'GetPriceFromTo':
             print(message)
-            sec, frm, to = parseArgGetPriceFromTo(src, frm, to);
+            sec, frm, to = parseArgGetPriceFromTo(sec, frm, to);
             print(sec, frm, to)
             response = GetPriceFromTo(ricName)
         elif function == 'GetExchange':
