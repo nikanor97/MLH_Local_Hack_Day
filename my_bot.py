@@ -26,9 +26,9 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
             'contextOut': [],
             'source': ''
         })
-        s.wfile.write(json.dumps(df_response))
+        s.wfile.write(json.loads(df_response))
         print('some bad words')
-
+        
 if __name__ == '__main__':
     print('debug')
     port = int(os.environ.get('PORT', 5000))
