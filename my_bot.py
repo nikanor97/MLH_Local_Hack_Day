@@ -6,15 +6,15 @@ import os
 import re
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from base.py import GetPriceFromTo
+from mylib.py import GetPriceFromTo
 
 def parse(message):
     m = re.match('.*intentName":"([a-zA-Z]+)"', message, flags=re.UNICODE)
     if m is not None:
         return m.group(1)
 
-def parseArg(message):
-    m = re.match('.*currency_from":"([a-zA-Z]+)"', message, flags=re.UNICODE)
+def parseArgGetPriceFromTo(message):
+    m = re.match('.*security":"([a-zA-Z]+)"', message, flags=re.UNICODE)
     if m is not None:
         return m.group(1)
 
@@ -34,8 +34,8 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
         message = str(post_body)
         function = parse(message)
         response = 'Something bad happend at the back-end\n'
-        if function == 'getPrice':
-            ricName = parseArg(message);
+        if function == 'GetPriceFromTo':
+            ricName = parseArgGetPriceFromTo(message);
             print(ricName)
             response = GetPriceFromTo(ricName);
         df_response = dict({
