@@ -230,6 +230,7 @@ def GetExchange(name):
         #for i in list(((list(price_data.values())[0]).values()))[0]:
         #    print ('price : ', i[u'C'], '              datetime : ', i[u'T'], '\n')
         print('price of ', name, ' : ', tmp['C'])
+        return tmp['C']
 
 
 def GetChartFromTo(ricName, date_from, date_to):
