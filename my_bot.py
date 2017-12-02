@@ -14,7 +14,7 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
         s.wfile.write('Test string')
 
     def do_POST(s):
-        content_len = int(s.headers['content_length'])
+        content_len = int(s.headers['Content-Length'])
         post_body = self.rfile.read(content_len)
         s.send_response(200)
         s.send_header('Content-type', 'application/json')
