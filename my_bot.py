@@ -3,8 +3,14 @@
 import time
 import json
 import os
+import re
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
+
+def parse(message):
+    m = re.match('intentName":"([a-zA-Z]+)"', message, flags=re.UNICODE)
+    if m is not None:
+        return m.group(1)
 
 class DialogFlowHandler(BaseHTTPRequestHandler):
 
@@ -19,10 +25,11 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
         s.send_response(200)
         s.send_header('Content-type', 'application/json')
         s.end_headers()
-        message = str(post_body) + '***' + str(type(post_body))
+        message = str(post_body)
+        function = parse(message)
         df_response = dict({
-            'speech': message,
-            'displayText': message,
+            'speech': function,
+            'displayText': function,
             'data': {},
             'contextOut': [],
             'source': ''
