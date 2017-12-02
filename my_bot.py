@@ -838,6 +838,11 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
             name = parseArgGetExchange(message)
             print(name)
             response = GetExchange(name)
+        elif function == 'Chart':
+            print(message)
+            sec, frm, to = parseArgGetPriceFromTo(message);
+            print(sec, frm, to)
+            response = GetChartFromTo(sec, frm + 'T00:00:00', to + 'T00:00:00')
         df_response = dict({
             'speech': response,
             'displayText': response,
