@@ -806,7 +806,7 @@ def parse(message):
 def parseArgGetChartFromTo(message):
     m = re.match('.*"security.original":"([a-zA-Z]+.[a-zA-Z]).*date_to":"(\d+-\d+-\d+)","date_from":\["(\d+-\d+-\d+)', message, flags=re.UNICODE)
     if m is not None:
-      print('HERE')
+        print('HERE')
         return (m.group(1), m.group(2), m.group(3))
 
 def parseArgGetPriceFromTo(message):
