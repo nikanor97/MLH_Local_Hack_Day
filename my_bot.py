@@ -235,7 +235,7 @@ def GetExchange(name):
 
 
 def GetChartFromTo(ricName, date_from, date_to):
-    token = CreateAuthorization(username, password, appid)
+    token = CreateAuthorization('trkd-demo-wm@thomsonreuters.com', 'o3o4h91ac', 'trkddemoappwm')
     print('Token = %s' % (token))
 
     ## if authentiacation success, continue subscribing Chart
