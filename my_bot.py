@@ -805,6 +805,11 @@ def parseArgGetPriceFromTo(message):
     if m is not None:
         return m.group(1)
 
+def parseArgGetExchange(message):
+    m = re.match('.*currency_from":"([a-zA-Z]+)"', message, flags=re.UNICODE)
+    if m is not None:
+        return m.group(1)
+
 class DialogFlowHandler(BaseHTTPRequestHandler):
 
     def do_GET(s):
@@ -824,7 +829,11 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
         if function == 'GetPriceFromTo':
             ricName = parseArgGetPriceFromTo(message);
             print(ricName)
-            response = GetPriceFromTo(ricName);
+            response = GetPriceFromTo(ricName)
+        elif function == 'GetExchange':
+            name = parseArgGetExchange(message)
+            print(name)
+            response = GetExchange(name)
         df_response = dict({
             'speech': response,
             'displayText': response,
