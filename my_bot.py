@@ -804,7 +804,7 @@ def parse(message):
         return m.group(1)
 
 def parseArgGetPriceFromTo(message):
-    m = re.match('.*"security":"(\S+.\S)","currency_to":"(\d+-\d+-\d+)","currency_from":\["(\d+-\d+-\d+)"\]', message, flags=re.UNICODE)
+    m = re.match('.*"text":"([a-zA-Z]+.[a-zA-Z]).*currency_to":"(\d+-\d+-\d+)","currency_from":\["(\d+-\d+-\d+)', message, flags=re.UNICODE)
     if m is not None:
         return (m.group(1), m.group(2), m.group(3))
 
