@@ -1,12 +1,12 @@
 # coding=utf-8
 
 import time
-import BaseHTTPServer
 import json
 import os
 
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
-class DialogFlowHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class DialogFlowHandler(BaseHTTPRequestHandler):
 
     def do_GET(s):
         s.send_response(200)
@@ -29,7 +29,7 @@ class DialogFlowHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     port = int(os.environ['PORT'])
-    server_class = BaseHTTPServer.HTTPServer
+    server_class = HTTPServer
     httpd = server_class(('', port), DialogFlowHandler)
     print(time.asctime(), 'Server started on port %s' % port)
     try:
