@@ -139,6 +139,14 @@ def GetChart(ricName):
             downloadChartImage(chartURL)
 
 
+def GetRicName(ricName):
+    token = CreateAuthorization('trkd-demo-wm@thomsonreuters.com', 'o3o4h91ac', 'trkddemoappwm')
+    print('Token = %s' % (token))
+
+    # if authentiacation success, continue subscribing Online Report
+    if token is not None:
+        print(RetrieveRicName(token, appid, ricName))
+
 ## Perform Chart request
 def RetrieveChart(token, appid, ricName):
     ##construct a Chart request message
@@ -400,7 +408,7 @@ def RetrieveChart(token, appid, ricName):
             return onlinereportResult.json()
 
 
-def RetrieveCompanyName(token, appid, name):
+def RetrieveRicName(token, appid, name):
     # construct Online Report URL and header
     onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/Search/Search.svc/REST/Organisation_1/GetOrganisation_1'
     headers = {'Content-type': 'application/json;charset=utf-8',
@@ -408,19 +416,28 @@ def RetrieveCompanyName(token, appid, name):
     # construct a Online Report request message
     onelinereportRequestMsg = {
         "GetOrganisation_Request_1": {
-            "Query": [
-                {
-                    "Search": {
-                        "Include": True,
-                        "StringValue": [
-                            {
-                                "Value": name
-                            }
-                        ]
-                    }
-                }
-            ]
-        }
+      "Query": [
+         {
+            "Search": {
+               "Include": True,
+               "StringValue": [
+                  {
+                     "Value": name
+                  }
+               ]
+            },
+            "Name": {
+               "Include": True
+            },
+            "CommonName": {
+               "Include": True
+            },
+            "PrimaryRIC": {
+               "Include": True
+            }
+         }
+      ]
+   }
     }
     print('############### Sending News - Online Report request message to TRKD ###############')
     onlinereportResult = doSendRequest(
@@ -446,3 +463,4 @@ if __name__ == '__main__':
 
     GetPrice(ricName)
     GetChart(ricName)
+    GetRicName(u'лукойл')
