@@ -1,1 +1,1 @@
-urlib>1.0
+urllib>3.4
