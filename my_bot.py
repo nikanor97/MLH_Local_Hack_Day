@@ -833,7 +833,7 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
             print(message)
             sec, frm, to = parseArgGetPriceFromTo(message);
             print(sec, frm, to)
-            response = GetPriceFromTo(sec, frm, to)
+            response = GetPriceFromTo(sec, frm + 'T00:00:00', to + 'T00:00:00')
         elif function == 'GetExchange':
             name = parseArgGetExchange(message)
             print(name)
