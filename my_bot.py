@@ -8,7 +8,7 @@ import re
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 def parse(message):
-    m = re.match('intentName":"([a-zA-Z]+)"', message, flags=re.UNICODE)
+    m = re.match('.*intentName":"([a-zA-Z]+)"', message, flags=re.UNICODE)
     if m is not None:
         print(m.group(1))
         return m.group(1)
