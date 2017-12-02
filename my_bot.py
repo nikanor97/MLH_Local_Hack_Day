@@ -14,6 +14,7 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
         s.wfile.write('Test string')
 
     def do_POST(s):
+        print('some good words')
         s.send_response(200)
         s.send_header('Content-type', 'application/json')
         s.end_headers()
