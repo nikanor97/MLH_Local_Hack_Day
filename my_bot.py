@@ -26,6 +26,7 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
             'source': ''
         })
         s.wfile.write(json.dumps(df_response))
+        print('some bad words')
 
 if __name__ == '__main__':
     port = 8807
