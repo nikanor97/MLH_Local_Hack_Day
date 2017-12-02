@@ -246,6 +246,7 @@ def GetChartFromTo(ricName, date_from, date_to):
         if chartURL is not None:
             print('############### Downloading Chart file from TRKD ###############')
             downloadChartImage(chartURL)
+            return(chartURL)
 
 
 ## Perform Chart request
