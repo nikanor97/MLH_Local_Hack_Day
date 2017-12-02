@@ -240,7 +240,7 @@ def GetChartFromTo(ricName, date_from, date_to):
 
     ## if authentiacation success, continue subscribing Chart
     if token is not None:
-      appid = 'trkddemoappwm'
+        appid = 'trkddemoappwm'
         chartURL = RetrieveChartFromTo(token, appid, ricName, date_from, date_to)
         ## if chart request success, continue downloading Chart image
         if chartURL is not None:
