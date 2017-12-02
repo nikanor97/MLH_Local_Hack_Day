@@ -30,7 +30,7 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
         print('some bad words')
 
 if __name__ == '__main__':
-    port = 8807
+    port = 0
     server_class = HTTPServer
     httpd = server_class(('', port), DialogFlowHandler)
     print(time.asctime(), 'Server started on port %s' % port)
