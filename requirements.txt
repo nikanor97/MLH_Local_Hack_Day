@@ -1,2 +1,2 @@
 urllib>3.4
-requests>1.0
+requests==0.11.1
