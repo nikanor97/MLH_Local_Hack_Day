@@ -14,11 +14,12 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
         s.wfile.write('Test string')
 
     def do_POST(s):
-        print('some good words')
+        content_len = int(s.headers.getheader('content_length'))
+        post_body = self.rfile.read(content_len)
         s.send_response(200)
         s.send_header('Content-type', 'application/json')
         s.end_headers()
-        message = 'Test message'
+        message = str(post_body) + '***' + str(type(post_body))
         df_response = dict({
             'speech': message,
             'displayText': message,
@@ -27,7 +28,6 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
             'source': ''
         })
         s.wfile.write(bytes(json.dumps(df_response), 'utf-8'))
-        print('some bad words')
         
 if __name__ == '__main__':
     print('debug')
