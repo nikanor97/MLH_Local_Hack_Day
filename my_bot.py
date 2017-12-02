@@ -806,7 +806,7 @@ def parse(message):
 def parseArgGetChartFromTo(message):
     m = re.match('.*"security":"([a-zA-Z]+.[a-zA-Z]).*date_to":"(\d+-\d+-\d+)","date_from":\["(\d+-\d+-\d+)', message, flags=re.UNICODE)
     if m is not None:
-        return ('.'.join(m.group(1).split(' ')), m.group(2), m.group(3))
+        return ('.'.join(m.group(1).split(' +')), m.group(2), m.group(3))
 
 def parseArgGetPriceFromTo(message):
     m = re.match('.*"text":"([a-zA-Z]+.[a-zA-Z]).*currency_to":"(\d+-\d+-\d+)","currency_from":\["(\d+-\d+-\d+)', message, flags=re.UNICODE)
