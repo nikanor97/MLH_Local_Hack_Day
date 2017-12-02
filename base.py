@@ -14,32 +14,50 @@ import json
 import re
 import getpass
 import urllib
-'''
+
+##download image url from the TRKD Chart service as chart.png
+def downloadChartImage(chartURL):
+    ##create header
+    user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+    headers = {'User-Agent': user_agent}
+    print('\nDownlading chart.png file from %s' % (chartURL))
+    ##download image using Python3 urllib
+    downloadResult = urllib.request.Request(chartURL, headers=headers)
+    imgData = urllib.request.urlopen(downloadResult).read()
+    ##write file
+    fileName = './chart.png'
+    with open(fileName, 'wb') as outfile:
+        outfile.write(imgData)
+        print('save chart.png file complete')
+
 # Send HTTP request for all services
 def doSendRequest(url, requestMsg, headers):
     result = None
     try:
-        ##send request
-        result = requests.post(url, data=json.dumps(requestMsg), headers=headers)
-        ## handle error
+        # send request
+        result = requests.post(
+            url, data=json.dumps(requestMsg), headers=headers)
+        # handle error
         if result.status_code is not 200:
             print('Request fail')
             print('response status %s' % (result.status_code))
-            if result.status_code == 500:  ## if username or password or appid is wrong
+            if result.status_code == 500:  # if username or password or appid is wrong
                 print('Error: %s' % (result.json()))
             result.raise_for_status()
     except requests.exceptions.RequestException as e:
         print('Exception!!!')
         print(e)
         sys.exit(1)
+    print(type(result))
     return result
 
 
-## Perform authentication
+# Perform authentication
 def CreateAuthorization(username, password, appid):
     token = None
-    ##create authentication request URL, message and header
-    authenMsg = {'CreateServiceToken_Request_1': {'ApplicationID': appid, 'Username': username, 'Password': password}}
+    # create authentication request URL, message and header
+    authenMsg = {'CreateServiceToken_Request_1': {
+        'ApplicationID': appid, 'Username': username, 'Password': password}}
     authenURL = 'https://api.trkd.thomsonreuters.com/api/TokenManagement/TokenManagement.svc/REST/Anonymous/TokenManagement_1/CreateServiceToken_1'
     headers = {'content-type': 'application/json;charset=utf-8'}
     print('############### Sending Authentication request message to TRKD ###############')
@@ -47,12 +65,66 @@ def CreateAuthorization(username, password, appid):
     if authenResult is not None and authenResult.status_code == 200:
         print('Authen success')
         print('response status %s' % (authenResult.status_code))
-        ##get Token
+        # get Token
         token = authenResult.json()['CreateServiceToken_Response_1']['Token']
 
     return token
 
-'''
+# Perform Online Report request
+
+
+def RetrieveOnlineReport(token, appid):
+    # construct Online Report URL and header
+    onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/OnlineReports/OnlineReports.svc/REST/OnlineReports_1/GetSummaryByTopic_1'
+    headers = {'content-type': 'application/json;charset=utf-8',
+               'X-Trkd-Auth-ApplicationID': appid, 'X-Trkd-Auth-Token': token}
+    # construct a Online Report request message
+    onelinereportRequestMsg = {'GetSummaryByTopic_Request_1': {
+        'Topic': 'OLRUTOPNEWS',
+        'MaxCount': 20,
+        'ReturnPrivateNetworkURL': False
+    }
+    }
+    print('############### Sending News - Online Report request message to TRKD ###############')
+    onlinereportResult = doSendRequest(
+        onlinereportURL, onelinereportRequestMsg, headers)
+    if onlinereportResult is not None and onlinereportResult.status_code == 200:
+        print('Online Report response message: ')
+        print(onlinereportResult.json())
+
+
+def RetrievePrice(token, appid):
+    # construct Online Report URL and header
+    onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/TimeSeries/TimeSeries.svc/REST/TimeSeries_1/GetInterdayTimeSeries_4'
+    headers = {'Content-type': 'application/json;charset=utf-8',
+               'X-Trkd-Auth-ApplicationID': appid, 'X-Trkd-Auth-Token': token}
+    # construct a Online Report request message
+    onelinereportRequestMsg = {
+        "GetInterdayTimeSeries_Request_4": {
+            "Symbol": "TRI.N",
+            "StartTime": "2017-09-02T00:00:00",
+            "EndTime": "2017-12-02T23:59:00",
+            "Interval": "DAILY"
+        }
+    }
+    print('############### Sending News - Online Report request message to TRKD ###############')
+    onlinereportResult = doSendRequest(
+        onlinereportURL, onelinereportRequestMsg, headers)
+    if onlinereportResult is not None and onlinereportResult.status_code == 200:
+        print('Online Report response message: ')
+        return onlinereportResult.json()
+
+def func1():
+    token = CreateAuthorization('trkd-demo-wm@thomsonreuters.com', 'o3o4h91ac', 'trkddemoappwm')
+    print('Token = %s' % (token))
+
+    # if authentiacation success, continue subscribing Online Report
+    s = ''
+    if token is not None:
+        price_data = RetrievePrice(token, appid)
+        for i in ((price_data.values()[0]).values())[0]:
+            print 'price : ', i[u'CLOSE'], '              datetime : ', i[u'TIMESTAMP'], '\n'
+
 ## Perform Chart request
 def RetrieveChart(token, appid):
     ##construct a Chart request message
@@ -293,117 +365,6 @@ def RetrieveChart(token, appid):
         return imageUrl
 
 
-##download image url from the TRKD Chart service as chart.png
-def downloadChartImage(chartURL):
-    ##create header
-    user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
-    headers = {'User-Agent': user_agent}
-    print('\nDownlading chart.png file from %s' % (chartURL))
-    ##download image using Python3 urllib
-    downloadResult = urllib.request.Request(chartURL, headers=headers)
-    imgData = urllib.request.urlopen(downloadResult).read()
-    ##write file
-    fileName = './chart.png'
-    with open(fileName, 'wb') as outfile:
-        outfile.write(imgData)
-        print('save chart.png file complete')
-
-# Send HTTP request for all services
-def doSendRequest(url, requestMsg, headers):
-    result = None
-    try:
-        # send request
-        result = requests.post(
-            url, data=json.dumps(requestMsg), headers=headers)
-        # handle error
-        if result.status_code is not 200:
-            print('Request fail')
-            print('response status %s' % (result.status_code))
-            if result.status_code == 500:  # if username or password or appid is wrong
-                print('Error: %s' % (result.json()))
-            result.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print('Exception!!!')
-        print(e)
-        sys.exit(1)
-    print(type(result))
-    return result
-
-
-# Perform authentication
-def CreateAuthorization(username, password, appid):
-    token = None
-    # create authentication request URL, message and header
-    authenMsg = {'CreateServiceToken_Request_1': {
-        'ApplicationID': appid, 'Username': username, 'Password': password}}
-    authenURL = 'https://api.trkd.thomsonreuters.com/api/TokenManagement/TokenManagement.svc/REST/Anonymous/TokenManagement_1/CreateServiceToken_1'
-    headers = {'content-type': 'application/json;charset=utf-8'}
-    print('############### Sending Authentication request message to TRKD ###############')
-    authenResult = doSendRequest(authenURL, authenMsg, headers)
-    if authenResult is not None and authenResult.status_code == 200:
-        print('Authen success')
-        print('response status %s' % (authenResult.status_code))
-        # get Token
-        token = authenResult.json()['CreateServiceToken_Response_1']['Token']
-
-    return token
-
-# Perform Online Report request
-
-
-def RetrieveOnlineReport(token, appid):
-    # construct Online Report URL and header
-    onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/OnlineReports/OnlineReports.svc/REST/OnlineReports_1/GetSummaryByTopic_1'
-    headers = {'content-type': 'application/json;charset=utf-8',
-               'X-Trkd-Auth-ApplicationID': appid, 'X-Trkd-Auth-Token': token}
-    # construct a Online Report request message
-    onelinereportRequestMsg = {'GetSummaryByTopic_Request_1': {
-        'Topic': 'OLRUTOPNEWS',
-        'MaxCount': 20,
-        'ReturnPrivateNetworkURL': False
-    }
-    }
-    print('############### Sending News - Online Report request message to TRKD ###############')
-    onlinereportResult = doSendRequest(
-        onlinereportURL, onelinereportRequestMsg, headers)
-    if onlinereportResult is not None and onlinereportResult.status_code == 200:
-        print('Online Report response message: ')
-        print(onlinereportResult.json())
-
-
-def RetrievePrice(token, appid):
-    # construct Online Report URL and header
-    onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/TimeSeries/TimeSeries.svc/REST/TimeSeries_1/GetInterdayTimeSeries_4'
-    headers = {'Content-type': 'application/json;charset=utf-8',
-               'X-Trkd-Auth-ApplicationID': appid, 'X-Trkd-Auth-Token': token}
-    # construct a Online Report request message
-    onelinereportRequestMsg = {
-        "GetInterdayTimeSeries_Request_4": {
-            "Symbol": "TRI.N",
-            "StartTime": "2017-09-02T00:00:00",
-            "EndTime": "2017-12-02T23:59:00",
-            "Interval": "DAILY"
-        }
-    }
-    print('############### Sending News - Online Report request message to TRKD ###############')
-    onlinereportResult = doSendRequest(
-        onlinereportURL, onelinereportRequestMsg, headers)
-    if onlinereportResult is not None and onlinereportResult.status_code == 200:
-        print('Online Report response message: ')
-        return onlinereportResult.json()
-
-def func1():
-    token = CreateAuthorization('trkd-demo-wm@thomsonreuters.com', 'o3o4h91ac', 'trkddemoappwm')
-    print('Token = %s' % (token))
-
-    # if authentiacation success, continue subscribing Online Report
-    s = ''
-    if token is not None:
-        price_data = RetrievePrice(token, appid)
-        for i in ((price_data.values()[0]).values())[0]:
-            print 'price : ', i[u'CLOSE'], '              datetime : ', i[u'TIMESTAMP'], '\n'
-
-
 ## ------------------------------------------ Main App ------------------------------------------ ##
 
 if __name__ == '__main__':
@@ -415,5 +376,15 @@ if __name__ == '__main__':
     password = 'o3o4h91ac'
     # appid = input('Please input appid: ')
     appid = 'trkddemoappwm'
+
+    token = CreateAuthorization(username, password, appid)
+    print('Token = %s' % (token))
+    ## if authentiacation success, continue subscribing Chart
+    if token is not None:
+        chartURL = RetrieveChart(token, appid)
+        ## if chart request success, continue downloading Chart image
+        if chartURL is not None:
+            print('############### Downloading Chart file from TRKD ###############')
+            downloadChartImage(chartURL)
 
     func1()
