@@ -21,7 +21,7 @@ class DialogFlowHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             'displayText': message,
             'data': {},
             'contextOut': [],
-            'source':
+            'source': ''
         })
         s.wfile.write(json.dumps(df_response))
 
