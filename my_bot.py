@@ -30,11 +30,7 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
         print('some bad words')
 
 if __name__ == '__main__':
-    ON_HEROKU = os.environ.get('ON_HEROKU')
-    if ON_HEROKU:
-      port =  int(os.environ.get('PORT', 17995))
-    else:
-      port = 6789
+    port = int(os.environ.get('PORT', 5000))
     server_class = HTTPServer
     httpd = server_class(('', port), DialogFlowHandler)
     print(time.asctime(), 'Server started on port %s' % port)
