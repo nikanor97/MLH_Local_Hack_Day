@@ -30,6 +30,7 @@ def downloadChartImage(chartURL):
         outfile.write(imgData)
         print('save chart.png file complete')
 
+
 # Send HTTP request for all services
 def doSendRequest(url, requestMsg, headers):
     result = None
@@ -70,9 +71,8 @@ def CreateAuthorization(username, password, appid):
 
     return token
 
+
 # Perform Online Report request
-
-
 def RetrieveOnlineReport(token, appid):
     # construct Online Report URL and header
     onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/OnlineReports/OnlineReports.svc/REST/OnlineReports_1/GetSummaryByTopic_1'
@@ -93,7 +93,7 @@ def RetrieveOnlineReport(token, appid):
         print(onlinereportResult.json())
 
 
-def RetrievePrice(token, appid):
+def RetrievePrice(token, appid, ricName):
     # construct Online Report URL and header
     onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/TimeSeries/TimeSeries.svc/REST/TimeSeries_1/GetInterdayTimeSeries_4'
     headers = {'Content-type': 'application/json;charset=utf-8',
@@ -101,7 +101,7 @@ def RetrievePrice(token, appid):
     # construct a Online Report request message
     onelinereportRequestMsg = {
         "GetInterdayTimeSeries_Request_4": {
-            "Symbol": "TRI.N",
+            "Symbol": ricName,
             "StartTime": "2017-09-02T00:00:00",
             "EndTime": "2017-12-02T23:59:00",
             "Interval": "DAILY"
@@ -114,22 +114,35 @@ def RetrievePrice(token, appid):
         print('Online Report response message: ')
         return onlinereportResult.json()
 
-def func1():
+
+def GetPrice(ricName):
     token = CreateAuthorization('trkd-demo-wm@thomsonreuters.com', 'o3o4h91ac', 'trkddemoappwm')
     print('Token = %s' % (token))
 
     # if authentiacation success, continue subscribing Online Report
-    s = ''
     if token is not None:
-        price_data = RetrievePrice(token, appid)
-        for i in ((price_data.values()[0]).values())[0]:
+        price_data = RetrievePrice(token, appid, ricName)
+        for i in list(((list(price_data.values())[0]).values()))[0]:
             print ('price : ', i[u'CLOSE'], '              datetime : ', i[u'TIMESTAMP'], '\n')
 
+
+def GetChart(ricName):
+    token = CreateAuthorization(username, password, appid)
+    print('Token = %s' % (token))
+
+    ## if authentiacation success, continue subscribing Chart
+    if token is not None:
+        chartURL = RetrieveChart(token, appid, ricName)
+        ## if chart request success, continue downloading Chart image
+        if chartURL is not None:
+            print('############### Downloading Chart file from TRKD ###############')
+            downloadChartImage(chartURL)
+
+
 ## Perform Chart request
-def RetrieveChart(token, appid):
+def RetrieveChart(token, appid, ricName):
     ##construct a Chart request message
-    #ricName = input('Please input Symbol: ')
-    ricName = 'TRI.N'
+    #ricName = 'APLE.K'
     chartRequestMsg = {'GetChart_Request_2': {'chartRequest': {
         'TimeSeries': {'TimeSeriesRequest_typehint': ['TimeSeriesRequest'],
                        'TimeSeriesRequest': [{'Symbol': ricName,
@@ -365,6 +378,56 @@ def RetrieveChart(token, appid):
         print('Url: %s' % (imageUrl))
         return imageUrl
 
+    def RetrievePrice(token, appid, ricName):
+        # construct Online Report URL and header
+        onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/TimeSeries/TimeSeries.svc/REST/TimeSeries_1/GetInterdayTimeSeries_4'
+        headers = {'Content-type': 'application/json;charset=utf-8',
+                   'X-Trkd-Auth-ApplicationID': appid, 'X-Trkd-Auth-Token': token}
+        # construct a Online Report request message
+        onelinereportRequestMsg = {
+            "GetInterdayTimeSeries_Request_4": {
+                "Symbol": ricName,
+                "StartTime": "2017-09-02T00:00:00",
+                "EndTime": "2017-12-02T23:59:00",
+                "Interval": "DAILY"
+            }
+        }
+        print('############### Sending News - Online Report request message to TRKD ###############')
+        onlinereportResult = doSendRequest(
+            onlinereportURL, onelinereportRequestMsg, headers)
+        if onlinereportResult is not None and onlinereportResult.status_code == 200:
+            print('Online Report response message: ')
+            return onlinereportResult.json()
+
+
+def RetrieveCompanyName(token, appid, name):
+    # construct Online Report URL and header
+    onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/Search/Search.svc/REST/Organisation_1/GetOrganisation_1'
+    headers = {'Content-type': 'application/json;charset=utf-8',
+               'X-Trkd-Auth-ApplicationID': appid, 'X-Trkd-Auth-Token': token}
+    # construct a Online Report request message
+    onelinereportRequestMsg = {
+        "GetOrganisation_Request_1": {
+            "Query": [
+                {
+                    "Search": {
+                        "Include": True,
+                        "StringValue": [
+                            {
+                                "Value": name
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+    print('############### Sending News - Online Report request message to TRKD ###############')
+    onlinereportResult = doSendRequest(
+        onlinereportURL, onelinereportRequestMsg, headers)
+    if onlinereportResult is not None and onlinereportResult.status_code == 200:
+        print('Online Report response message: ')
+        return onlinereportResult.json()
 
 ## ------------------------------------------ Main App ------------------------------------------ ##
 
@@ -377,15 +440,9 @@ if __name__ == '__main__':
     password = 'o3o4h91ac'
     # appid = input('Please input appid: ')
     appid = 'trkddemoappwm'
+    ricName = 'APLE.K'
 
-    token = CreateAuthorization(username, password, appid)
-    print('Token = %s' % (token))
-    ## if authentiacation success, continue subscribing Chart
-    if token is not None:
-        chartURL = RetrieveChart(token, appid)
-        ## if chart request success, continue downloading Chart image
-        if chartURL is not None:
-            print('############### Downloading Chart file from TRKD ###############')
-            downloadChartImage(chartURL)
 
-    func1()
+
+    GetPrice(ricName)
+    GetChart(ricName)
