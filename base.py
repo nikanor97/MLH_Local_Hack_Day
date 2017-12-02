@@ -123,12 +123,13 @@ def func1():
     if token is not None:
         price_data = RetrievePrice(token, appid)
         for i in ((price_data.values()[0]).values())[0]:
-            print 'price : ', i[u'CLOSE'], '              datetime : ', i[u'TIMESTAMP'], '\n'
+            print ('price : ', i[u'CLOSE'], '              datetime : ', i[u'TIMESTAMP'], '\n')
 
 ## Perform Chart request
 def RetrieveChart(token, appid):
     ##construct a Chart request message
-    ricName = input('Please input Symbol: ')
+    #ricName = input('Please input Symbol: ')
+    ricName = 'TRI.N'
     chartRequestMsg = {'GetChart_Request_2': {'chartRequest': {
         'TimeSeries': {'TimeSeriesRequest_typehint': ['TimeSeriesRequest'],
                        'TimeSeriesRequest': [{'Symbol': ricName,
