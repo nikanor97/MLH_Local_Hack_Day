@@ -26,7 +26,7 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
             'contextOut': [],
             'source': ''
         })
-        s.wfile.write(json.loads(df_response))
+        s.wfile.write(bytes(json.dumps(df_response)), 'utf-8')
         print('some bad words')
         
 if __name__ == '__main__':
