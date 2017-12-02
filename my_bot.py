@@ -10,7 +10,6 @@ import getpass
 import urllib
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from mylib.py import GetPriceFromTo
 from time import gmtime, strftime, mktime
 
 ##download image url from the TRKD Chart service as chart.png
