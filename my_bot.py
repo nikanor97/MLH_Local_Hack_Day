@@ -30,11 +30,13 @@ class DialogFlowHandler(BaseHTTPRequestHandler):
         print('some bad words')
 
 if __name__ == '__main__':
+    print('debug')
     port = int(os.environ.get('PORT', 5000))
     server_class = HTTPServer
     httpd = server_class(('', port), DialogFlowHandler)
     print(time.asctime(), 'Server started on port %s' % port)
     try:
+        print('iteration')
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
