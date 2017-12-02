@@ -136,6 +136,7 @@ def GetPriceFromTo(ricName, date_from, date_to):
             print ('price : ', i[u'CLOSE'], '              datetime : ', i[u'TIMESTAMP'], '\n')
         #print (price_data)
 
+
 def RetrievePriceLast(token, appid, ricName, num_bars):
     gamma = gmtime()
     seconds = mktime(gamma)
@@ -182,6 +183,57 @@ def GetPriceLast(ricName, num_bars):
         price_data = RetrievePriceLast(token, appid, ricName, num_bars)
         for i in list(((list(price_data.values())[0]).values()))[0]:
             print ('price : ', i[u'C'], '              datetime : ', i[u'T'], '\n')
+
+
+def RetrieveExchange(token, appid, ricName):
+    gamma = gmtime()
+    seconds = mktime(gamma)
+    num_bars = 1000
+    alpha_to = strftime('%Y-%m-%d', gamma)
+    beta_to = strftime('%H:%M:%S', gamma)
+
+    date_to = alpha_to + 'T' + beta_to
+
+    delta = gmtime(seconds - num_bars * 3600)
+
+    alpha_from = strftime('%Y-%m-%d', delta)
+    beta_from = strftime('%H:%M:%S', delta)
+
+    date_from = alpha_from + 'T' + beta_from
+
+    # construct Online Report URL and header
+    onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/TimeSeries/TimeSeries.svc/REST/TimeSeries_1/GetIntradayTimeSeries_4'
+    headers = {'Content-type': 'application/json;charset=utf-8',
+               'X-Trkd-Auth-ApplicationID': appid, 'X-Trkd-Auth-Token': token}
+    # construct a Online Report request message
+    onelinereportRequestMsg = {
+        "GetIntradayTimeSeries_Request_4": {
+            "Symbol": ricName,
+            "StartTime": date_from,
+            "EndTime": date_to,
+            "Interval": "HOUR",
+            "TrimResponse": True
+        }
+    }
+    print('############### Sending News - Online Report request message to TRKD ###############')
+    onlinereportResult = doSendRequest(onlinereportURL, onelinereportRequestMsg, headers)
+    if onlinereportResult is not None and onlinereportResult.status_code == 200:
+        print('Online Report response message: ')
+        return onlinereportResult.json()
+
+
+def GetExchange(name):
+    ricName = name + 'RUB=R'
+    token = CreateAuthorization('trkd-demo-wm@thomsonreuters.com', 'o3o4h91ac', 'trkddemoappwm')
+    print('Token = %s' % (token))
+    tmp = 0
+    # if authentiacation success, continue subscribing Online Report
+    if token is not None:
+        price_data = RetrieveExchange(token, appid, ricName)
+        tmp = ((list(((list(price_data.values())[0]).values()))[0])[-1])
+        #for i in list(((list(price_data.values())[0]).values()))[0]:
+        #    print ('price : ', i[u'C'], '              datetime : ', i[u'T'], '\n')
+        print('price of ', name, ' : ', tmp['C'])
 
 
 def GetChartFromTo(ricName, date_from, date_to):
@@ -744,14 +796,16 @@ if __name__ == '__main__':
     password = 'o3o4h91ac'
     # appid = input('Please input appid: ')
     appid = 'trkddemoappwm'
-    ricName = 'LKOH.MM'
+    ricName = 'GBPRUB=R'
     date_from = '2017-09-02'
     date_to = '2017-12-02'
     date_from += 'T00:00:00'
     date_to += 'T23:59:00'
     num_bars = 400
+    name = 'AWG'
 
     #GetPriceFromTo(ricName, date_from, date_to)
     #GetChartFromTo(ricName, date_from, date_to)
     #GetPriceLast(ricName, num_bars)
     #GetChartLast(ricName, num_bars)
+    GetExchange(name)
