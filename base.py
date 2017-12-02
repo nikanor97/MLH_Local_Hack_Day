@@ -15,6 +15,8 @@ import re
 import getpass
 import urllib
 
+from time import gmtime, strftime, mktime
+
 ##download image url from the TRKD Chart service as chart.png
 def downloadChartImage(chartURL):
     ##create header
@@ -93,7 +95,13 @@ def RetrieveOnlineReport(token, appid):
         print(onlinereportResult.json())
 
 
-def RetrievePrice(token, appid, ricName):
+def RetrievePriceFromTo(token, appid, ricName):
+
+    date_from = '2017-09-02'
+    date_to = '2017-12-02'
+    date_from += 'T00:00:00'
+    date_to += 'T23:59:00'
+
     # construct Online Report URL and header
     onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/TimeSeries/TimeSeries.svc/REST/TimeSeries_1/GetInterdayTimeSeries_4'
     headers = {'Content-type': 'application/json;charset=utf-8',
@@ -102,8 +110,10 @@ def RetrievePrice(token, appid, ricName):
     onelinereportRequestMsg = {
         "GetInterdayTimeSeries_Request_4": {
             "Symbol": ricName,
-            "StartTime": "2017-09-02T00:00:00",
-            "EndTime": "2017-12-02T23:59:00",
+            #"StartTime": "2017-09-02T00:00:00",
+            #"EndTime": "2017-12-02T23:59:00",
+            "StartTime": date_from,
+            "EndTime": date_to,
             "Interval": "DAILY"
         }
     }
@@ -115,15 +125,68 @@ def RetrievePrice(token, appid, ricName):
         return onlinereportResult.json()
 
 
-def GetPrice(ricName):
+def GetPriceFromTo(ricName):
     token = CreateAuthorization('trkd-demo-wm@thomsonreuters.com', 'o3o4h91ac', 'trkddemoappwm')
     print('Token = %s' % (token))
 
     # if authentiacation success, continue subscribing Online Report
     if token is not None:
-        price_data = RetrievePrice(token, appid, ricName)
+        price_data = RetrievePriceFromTo(token, appid, ricName)
         for i in list(((list(price_data.values())[0]).values()))[0]:
             print ('price : ', i[u'CLOSE'], '              datetime : ', i[u'TIMESTAMP'], '\n')
+        print (price_data)
+
+def RetrievePriceLast(token, appid, ricName, num_bars):
+    gamma = gmtime()
+    seconds = mktime(gamma)
+
+    alpha_to = strftime('%Y-%m-%d', gamma)
+    beta_to = strftime('%H:%M:%S', gamma)
+
+    date_to = alpha_to + 'T' + beta_to
+
+    delta = gmtime(seconds - num_bars * 3600)
+
+    alpha_from = strftime('%Y-%m-%d', delta)
+    beta_from = strftime('%H:%M:%S', delta)
+
+    date_from = alpha_from + 'T' + beta_from
+
+    print (date_from)
+    print (date_to)
+
+
+    # construct Online Report URL and header
+    onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/TimeSeries/TimeSeries.svc/REST/TimeSeries_1/GetIntradayTimeSeries_4'
+    headers = {'Content-type': 'application/json;charset=utf-8',
+               'X-Trkd-Auth-ApplicationID': appid, 'X-Trkd-Auth-Token': token}
+    # construct a Online Report request message
+    onelinereportRequestMsg = {
+        "GetIntradayTimeSeries_Request_4": {
+            "Symbol": ricName,
+            "StartTime": date_from,
+            "EndTime": date_to,
+            "Interval": "HOUR",
+            "TrimResponse": True
+        }
+    }
+    print('############### Sending News - Online Report request message to TRKD ###############')
+    onlinereportResult = doSendRequest(onlinereportURL, onelinereportRequestMsg, headers)
+    if onlinereportResult is not None and onlinereportResult.status_code == 200:
+        print('Online Report response message: ')
+        return onlinereportResult.json()
+
+
+def GetPriceLast(ricName, num_bars):
+    token = CreateAuthorization('trkd-demo-wm@thomsonreuters.com', 'o3o4h91ac', 'trkddemoappwm')
+    print('Token = %s' % (token))
+
+    # if authentiacation success, continue subscribing Online Report
+    if token is not None:
+        price_data = RetrievePriceLast(token, appid, ricName, num_bars)
+        for i in list(((list(price_data.values())[0]).values()))[0]:
+            print ('price : ', i[u'C'], '              datetime : ', i[u'T'], '\n')
+
 
 
 def GetChart(ricName):
@@ -138,19 +201,27 @@ def GetChart(ricName):
             print('############### Downloading Chart file from TRKD ###############')
             downloadChartImage(chartURL)
 
-
+'''
 def GetRicName(ricName):
     token = CreateAuthorization('trkd-demo-wm@thomsonreuters.com', 'o3o4h91ac', 'trkddemoappwm')
     print('Token = %s' % (token))
 
     # if authentiacation success, continue subscribing Online Report
     if token is not None:
-        print(RetrieveRicName(token, appid, ricName))
-
+        #print(((list((list((list(RetrieveRicName(token, appid, ricName).values())[0]).values())[0]).values())[0])[0])['PrimaryRIC'] )
+        #print(          ((list((list((list((RetrieveRicName(token, appid, ricName)).values())[0]).values())[0]).values()))[0])[8]        )
+        print(    list(((list((list((list((RetrieveRicName(token, appid, ricName)).values())[0]).values())[1]).values())[0])[0]).values())[1]     )
+'''
 ## Perform Chart request
 def RetrieveChart(token, appid, ricName):
     ##construct a Chart request message
     #ricName = 'APLE.K'
+
+    date_from = '2017-09-02'
+    date_to = '2017-12-02'
+    date_from += 'T00:00:00'
+    date_to += 'T23:59:00'
+
     chartRequestMsg = {'GetChart_Request_2': {'chartRequest': {
         'TimeSeries': {'TimeSeriesRequest_typehint': ['TimeSeriesRequest'],
                        'TimeSeriesRequest': [{'Symbol': ricName,
@@ -165,8 +236,8 @@ def RetrieveChart(token, appid, ricName):
             'ShowNonTradedPeriods': False,
             'ShowHolidays': False,
             'ShowGaps': True,
-            'XAxis': {'Range': {'Fixed': {'First': '2015-09-22T00:00:00',
-                                          'Last': '2016-09-22T00:00:00'}}, 'Visible': True,
+            'XAxis': {'Range': {'Fixed': {'First': date_from,
+                                          'Last': date_to}}, 'Visible': True,
                       'Position': 'Bottom'},
             'Subchart': [{'YAxis': [{
                 'Analysis': [{'Reference': 'a1'}],
@@ -407,7 +478,7 @@ def RetrieveChart(token, appid, ricName):
             print('Online Report response message: ')
             return onlinereportResult.json()
 
-
+'''
 def RetrieveRicName(token, appid, name):
     # construct Online Report URL and header
     onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/Search/Search.svc/REST/Organisation_1/GetOrganisation_1'
@@ -416,6 +487,13 @@ def RetrieveRicName(token, appid, name):
     # construct a Online Report request message
     onelinereportRequestMsg = {
         "GetOrganisation_Request_1": {
+      "Filter": [
+         {
+            "PrimaryRIC": {
+               "Include": True
+            }
+         }
+      ],
       "Query": [
          {
             "Search": {
@@ -425,27 +503,17 @@ def RetrieveRicName(token, appid, name):
                      "Value": name
                   }
                ]
-            },
-            "Name": {
-               "Include": True
-            },
-            "CommonName": {
-               "Include": True
-            },
-            "PrimaryRIC": {
-               "Include": True
             }
          }
       ]
    }
-    }
+   }
     print('############### Sending News - Online Report request message to TRKD ###############')
-    onlinereportResult = doSendRequest(
-        onlinereportURL, onelinereportRequestMsg, headers)
+    onlinereportResult = doSendRequest(onlinereportURL, onelinereportRequestMsg, headers)
     if onlinereportResult is not None and onlinereportResult.status_code == 200:
         print('Online Report response message: ')
         return onlinereportResult.json()
-
+'''
 ## ------------------------------------------ Main App ------------------------------------------ ##
 
 if __name__ == '__main__':
@@ -457,10 +525,9 @@ if __name__ == '__main__':
     password = 'o3o4h91ac'
     # appid = input('Please input appid: ')
     appid = 'trkddemoappwm'
-    ricName = 'APLE.K'
+    ricName = 'LKOH.MM'
+    num_bars = 400
 
-
-
-    GetPrice(ricName)
-    GetChart(ricName)
-    GetRicName(u'лукойл')
+    #GetPriceFromTo(ricName)
+    #GetChart(ricName)
+    GetPriceLast(ricName, num_bars)
