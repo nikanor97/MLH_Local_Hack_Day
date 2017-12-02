@@ -224,6 +224,7 @@ def GetExchange(name):
     tmp = 0
     # if authentiacation success, continue subscribing Online Report
     if token is not None:
+        appid = 'trkddemoappwm'
         price_data = RetrieveExchange(token, appid, ricName)
         tmp = ((list(((list(price_data.values())[0]).values()))[0])[-1])
         #for i in list(((list(price_data.values())[0]).values()))[0]:
