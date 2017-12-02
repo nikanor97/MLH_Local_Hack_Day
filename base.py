@@ -95,12 +95,12 @@ def RetrieveOnlineReport(token, appid):
         print(onlinereportResult.json())
 
 
-def RetrievePriceFromTo(token, appid, ricName):
+def RetrievePriceFromTo(token, appid, ricName, date_from, date_to):
 
-    date_from = '2017-09-02'
-    date_to = '2017-12-02'
-    date_from += 'T00:00:00'
-    date_to += 'T23:59:00'
+    #date_from = '2017-09-02'
+    #date_to = '2017-12-02'
+    #date_from += 'T00:00:00'
+    #date_to += 'T23:59:00'
 
     # construct Online Report URL and header
     onlinereportURL = 'http://api.trkd.thomsonreuters.com/api/TimeSeries/TimeSeries.svc/REST/TimeSeries_1/GetInterdayTimeSeries_4'
@@ -125,16 +125,16 @@ def RetrievePriceFromTo(token, appid, ricName):
         return onlinereportResult.json()
 
 
-def GetPriceFromTo(ricName):
+def GetPriceFromTo(ricName, date_from, date_to):
     token = CreateAuthorization('trkd-demo-wm@thomsonreuters.com', 'o3o4h91ac', 'trkddemoappwm')
     print('Token = %s' % (token))
 
     # if authentiacation success, continue subscribing Online Report
     if token is not None:
-        price_data = RetrievePriceFromTo(token, appid, ricName)
+        price_data = RetrievePriceFromTo(token, appid, ricName, date_from, date_to)
         for i in list(((list(price_data.values())[0]).values()))[0]:
             print ('price : ', i[u'CLOSE'], '              datetime : ', i[u'TIMESTAMP'], '\n')
-        print (price_data)
+        #print (price_data)
 
 def RetrievePriceLast(token, appid, ricName, num_bars):
     gamma = gmtime()
@@ -184,13 +184,13 @@ def GetPriceLast(ricName, num_bars):
             print ('price : ', i[u'C'], '              datetime : ', i[u'T'], '\n')
 
 
-def GetChartFromTo(ricName):
+def GetChartFromTo(ricName, date_from, date_to):
     token = CreateAuthorization(username, password, appid)
     print('Token = %s' % (token))
 
     ## if authentiacation success, continue subscribing Chart
     if token is not None:
-        chartURL = RetrieveChartFromTo(token, appid, ricName)
+        chartURL = RetrieveChartFromTo(token, appid, ricName, date_from, date_to)
         ## if chart request success, continue downloading Chart image
         if chartURL is not None:
             print('############### Downloading Chart file from TRKD ###############')
@@ -198,7 +198,7 @@ def GetChartFromTo(ricName):
 
 
 ## Perform Chart request
-def RetrieveChartFromTo(token, appid, ricName):
+def RetrieveChartFromTo(token, appid, ricName, date_from, date_to):
     ##construct a Chart request message
     #ricName = 'APLE.K'
 
@@ -745,9 +745,13 @@ if __name__ == '__main__':
     # appid = input('Please input appid: ')
     appid = 'trkddemoappwm'
     ricName = 'LKOH.MM'
+    date_from = '2017-09-02'
+    date_to = '2017-12-02'
+    date_from += 'T00:00:00'
+    date_to += 'T23:59:00'
     num_bars = 400
 
-    #GetPriceFromTo(ricName)
-    #GetChart(ricName)
+    #GetPriceFromTo(ricName, date_from, date_to)
+    #GetChartFromTo(ricName, date_from, date_to)
     #GetPriceLast(ricName, num_bars)
-    GetChartLast(ricName, num_bars)
+    #GetChartLast(ricName, num_bars)
