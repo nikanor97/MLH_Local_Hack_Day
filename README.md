@@ -1,4 +1,4 @@
 # Repository for MLH Local Hack Day
-There is the telegram bot, which can:
-- show charts
+Here you can find simple telegram bot that can:
+- show charts of securities
 - show current exchange rates
